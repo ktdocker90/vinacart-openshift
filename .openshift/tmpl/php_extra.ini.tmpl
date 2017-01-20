@@ -1,0 +1,30 @@
+short_open_tag = On
+display_errors = On
+log_errors = On
+display_startup_errors = On
+error_reporting = E_ALL
+
+memory_limit = 512M
+upload_max_filesize = 100M
+post_max_size = 100M
+realpath_cache_size = 512K
+register_long_arrays = Off
+
+;output_buffering = Off
+output_buffering = 4096
+
+default_charset   = UTF-8
+variables_order = "EGPCS"
+
+
+; for abantecart
+magic_quotes_gpc = Off
+register_globals = Off
+safe_mode = Off
+mysql.connect_timeout = 20
+
+; for openshift $HTTP_RAW_POST_DATA is deprecated and will be removed in a future version.
+always_populate_raw_post_data = -1
+
+[Date]
+date.timezone = "Asia/Ho_Chi_Minh"

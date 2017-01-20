@@ -1,0 +1,41 @@
+#!/bin/bash
+
+function build_ioncube() {
+	cd ${HOME}/app-root/data
+    wget http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
+    tar xvfz ioncube_loaders_lin_x86-64.tar.gz    
+    rm -rf xvfz ioncube_loaders_lin_x86-64.tar.gz
+
+    #${OPENSHIFT_RUNTIME_DIR}/etc/php5/php.ini
+    local extension_dir="${OPENSHIFT_RUNTIME_DIR}/php5/lib/php/extensions/no-debug-non-zts-20131226"
+    local PHP_VERSION=$(php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;")
+    PHP_VERSION="5.6"
+    cp "ioncube/ioncube_loader_lin_${PHP_VERSION}.so" "$extension_dir"
+
+    # modify php.ini: '${HOME}'/app-root/data/ioncube/
+    #echo 'extension=ioncube_loader_lin_'${PHP_VERSION}'.so' > ${OPENSHIFT_RUNTIME_DIR}/etc/php5/conf.d/ioncube.ini
+    sed -i '1 a zend_extension = "ioncube_loader_lin_'${PHP_VERSION}'.so"' \
+    ${OPENSHIFT_RUNTIME_DIR}/etc/php5/php.ini
+
+    # test
+    local ioncube_version=`${php_bin} -r "echo var_export(extension_loaded('ionCube Loader') ,true);"`
+    echo "Current ioncube version => $ioncube_version"
+}
+function check_ioncube() {
+	local php_bin=${OPENSHIFT_RUNTIME_DIR}/php5/bin/php
+    local ioncube_version=`${php_bin} -r "echo var_export(extension_loaded('ionCube Loader') ,true);"`
+
+    if [[ ${ioncube_version} == "false" ]]; then
+        echo "Ioncube not installed or old version ${ioncube_version}"
+        build_ioncube
+    else
+        echo "Ioncube up to date, version: ${ioncube_version}."
+        # reinstall
+        #build_ioncube
+    fi
+}
+
+# Install phalcon when a version exists
+#if [ ! -z "${PHALCON_VERSION}" ]; then
+    check_ioncube
+#fi
